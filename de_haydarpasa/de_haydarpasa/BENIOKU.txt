@@ -2,9 +2,11 @@ de_haydarpasa - Counter-Strike 1.6 haritası
 ============================================
 
 KURULUM
-  cstrike\maps\de_haydarpasa.bsp dosyasını oyun klasörüne kopyalayın:
-    ...\Steam\steamapps\common\Half-Life\cstrike\maps\
-  (Tüm dokular .bsp içine gömülü; ek .wad gerekmez.)
+  cstrike\ klasörünün içindekileri oyunun cstrike klasörüne kopyalayın:
+    cstrike\maps\de_haydarpasa.bsp      -> ...\Steam\steamapps\common\Half-Life\cstrike\maps\
+    cstrike\gfx\env\haydarpasa*.tga    -> ...\Steam\steamapps\common\Half-Life\cstrike\gfx\env\
+  (Tüm dokular .bsp içine gömülü; ek .wad gerekmez. gfx\env altındaki 6 .tga
+   haritanın gökyüzüdür; kopyalanmazsa gökyüzü boş/bozuk görünür.)
   Oyunda konsolu açıp:  map de_haydarpasa
 
 HARİTA
@@ -38,6 +40,11 @@ DÜZENLEME (isteğe bağlı)
   kaynak\mapgen.py / textures.py -> haritayı ve dokuları üreten Python betikleri
                               (mapgen.py doku boyutlarını yanındaki haydarpasa.wad'dan
                               okur, .map dosyasını aynı klasöre yazar).
-  kaynak\render_bsp.py      -> onizleme\ klasörüne önizleme görüntüleri üretir.
+  kaynak\skygen.py          -> gökyüzü kutusunu (6 .tga) üretir.
+  kaynak\render_bsp.py      -> onizleme\ klasörüne önizleme görüntüleri üretir
+                              (gfx\env'deki gökyüzü varsa onu da çizer).
   Derleme: SDHLT (sdHLCSG -wadinclude haydarpasa, sdHLBSP, sdHLVIS, sdHLRAD).
-  Gökyüzü: "desert" (worldspawn > skyname ile değiştirilebilir).
+  Gökyüzü: haritaya özel "haydarpasa" (cstrike\gfx\env\haydarpasa*.tga): bulutlu gök,
+           ufkun altında denizin devamı, batıda puslu tarihi yarımada silueti (kubbeler,
+           minareler, Galata kulesi), kuzeybatıda Boğaz Köprüsü. kaynak\skygen.py üretir;
+           worldspawn > skyname ile başka bir gökyüzü seçilebilir.

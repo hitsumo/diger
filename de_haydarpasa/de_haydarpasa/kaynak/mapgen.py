@@ -585,7 +585,7 @@ for y in (-280, 280):
 # ================================================================ WRITE
 def write(path):
     out = ['{', '"classname" "worldspawn"', '"mapversion" "220"', f'"wad" "{WADS}"',
-           '"skyname" "desert"', '"MaxRange" "8192"', '"message" "Haydarpasa Gari"', '"sounds" "1"']
+           '"skyname" "haydarpasa"', '"MaxRange" "8192"', '"message" "Haydarpasa Gari"', '"sounds" "1"']
     out += [b.to_map() for b in world]
     out.append("}")
     for e, bs in ents:

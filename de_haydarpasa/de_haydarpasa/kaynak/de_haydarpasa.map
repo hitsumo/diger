@@ -2,7 +2,7 @@
 "classname" "worldspawn"
 "mapversion" "220"
 "wad" "haydarpasa.wad;sdhlt.wad"
-"skyname" "desert"
+"skyname" "haydarpasa"
 "MaxRange" "8192"
 "message" "Haydarpasa Gari"
 "sounds" "1"
