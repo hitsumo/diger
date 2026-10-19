@@ -1,0 +1,35 @@
+de_haydarpasa - Counter-Strike 1.6 haritası
+============================================
+
+KURULUM
+  cstrike\maps\de_haydarpasa.bsp dosyasını oyun klasörüne kopyalayın:
+    ...\Steam\steamapps\common\Half-Life\cstrike\maps\
+  (Tüm dokular .bsp içine gömülü; ek .wad gerekmez.)
+  Oyunda konsolu açıp:  map de_haydarpasa
+
+HARİTA
+  Tür: Bomba imha (de_), 16 CT + 16 T spawn noktası.
+  CT  : Gar binasının bekleme salonu (mermer zemin, gişeler, sütunlar).
+  T   : Demiryolu sahasının doğu ucu.
+  A   : Peron başı - trenler, büfe ve sandıklar arası.
+  B   : Güney rıhtımı - yanaşmış vapur (iskele köprülerinden güverteye çıkılır).
+  Rotalar: peronlar (orta), güney yolu (uzun, B'ye), kuzey avlu (yan yol),
+           salonun içinden geçiş (CT rotasyonu). Denize düşerseniz rıhtımdaki
+           merdivenlerden çıkabilirsiniz.
+
+YAPI
+  Denize bakan simetrik cephe, köşelerde iki yuvarlak kule ve konik çatılar,
+  orta risalitte "HAYDARPAŞA" yazısı ve alınlık, kırma çatılar, iki yan kanat,
+  çelik peron sundurmaları, TCDD vagonları/lokomotif, iskele binası ve vapur.
+  İskele binasının kuzey iç duvarında çerçeveli SÇ logosu (doku: hp_logo).
+  A'daki yolcu vagonunun iki yanında "sicakcikolata.com" yazısı (hp_carsc_guney/kuzey).
+  Ölçek oynanabilirlik için küçültüldü; birebir rölöve değildir.
+
+DÜZENLEME (isteğe bağlı)
+  kaynak\de_haydarpasa.map  -> J.A.C.K. / Hammer / TrenchBroom ile açılabilir
+                              (Valve 220 formatı). haydarpasa.wad'ı editöre ekleyin;
+                              sky/aaatrigger araç dokuları için zhlt.wad veya
+                              halflife.wad yüklü olmalı.
+  kaynak\mapgen.py / textures.py -> haritayı ve dokuları üreten Python betikleri.
+  Derleme: SDHLT (sdHLCSG -wadinclude haydarpasa, sdHLBSP, sdHLVIS, sdHLRAD).
+  Gökyüzü: "desert" (worldspawn > skyname ile değiştirilebilir).
