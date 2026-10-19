@@ -14,8 +14,13 @@ HARİTA
   A   : Peron başı - trenler, büfe ve sandıklar arası.
   B   : Güney rıhtımı - yanaşmış vapur (iskele köprülerinden güverteye çıkılır).
   Rotalar: peronlar (orta), güney yolu (uzun, B'ye), kuzey avlu (yan yol),
-           salonun içinden geçiş (CT rotasyonu). Denize düşerseniz rıhtımdaki
-           merdivenlerden çıkabilirsiniz.
+           salonun içinden geçiş (CT rotasyonu), yer altı geçidi (aşağıda).
+           Denize düşerseniz rıhtımdaki merdivenlerden çıkabilirsiniz.
+  Yer altı geçidi: Orta peronun (A) doğu ucundaki merdivenden inilir; peronların,
+           avlunun ve bekleme salonunun altından geçip rıhtımda, gar kapılarının
+           kuzeyinde (kuzey kulenin yanında) merdivenle çıkar. Avlunun altında bir
+           dirsek vardır; düz nişan hattı yoktur. T için B'ye ikinci bir yol, CT için
+           A'ya salonu kullanmadan rotasyon sağlar.
 
 YAPI
   Denize bakan simetrik cephe, köşelerde iki yuvarlak kule ve konik çatılar,
@@ -30,6 +35,9 @@ DÜZENLEME (isteğe bağlı)
                               (Valve 220 formatı). haydarpasa.wad'ı editöre ekleyin;
                               sky/aaatrigger araç dokuları için zhlt.wad veya
                               halflife.wad yüklü olmalı.
-  kaynak\mapgen.py / textures.py -> haritayı ve dokuları üreten Python betikleri.
+  kaynak\mapgen.py / textures.py -> haritayı ve dokuları üreten Python betikleri
+                              (mapgen.py doku boyutlarını yanındaki haydarpasa.wad'dan
+                              okur, .map dosyasını aynı klasöre yazar).
+  kaynak\render_bsp.py      -> onizleme\ klasörüne önizleme görüntüleri üretir.
   Derleme: SDHLT (sdHLCSG -wadinclude haydarpasa, sdHLBSP, sdHLVIS, sdHLRAD).
   Gökyüzü: "desert" (worldspawn > skyname ile değiştirilebilir).
