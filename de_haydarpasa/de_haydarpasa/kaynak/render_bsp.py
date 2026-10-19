@@ -53,8 +53,67 @@ def load(path):
     return faces[first:first + num], texinfo, texs, light
 
 
+# GoldSrc sky kutusu: yüz sırası rt(+x) bk(-x) lf(+y) ft(-y) up(+z) dn(-z); vec[j] = ±b[|k|-1], b=(s,t,1)
+ST_TO_VEC = [(3, -1, 2), (-3, 1, 2), (1, 3, 2), (-1, -3, 2), (-2, -1, 3), (2, -1, -3)]
+SKY_SUFFIX = ["rt", "bk", "lf", "ft", "up", "dn"]
+
+
+def load_sky(bsp_path):
+    """<harita>/../gfx/env/<skyname>*.tga varsa 6 yüzü (h, w, 3) float dizileri olarak döndürür."""
+    d = open(bsp_path, "rb").read()
+    o, n = struct.unpack_from("<ii", d, 4)
+    ents = d[o:o + n].decode(errors="replace")
+    import re
+    m = re.search(r'"skyname"\s+"([^"]+)"', ents)
+    if not m:
+        return None
+    env = os.path.join(os.path.dirname(os.path.abspath(bsp_path)), "..", "gfx", "env")
+    faces = []
+    for suf in SKY_SUFFIX:
+        p = os.path.join(env, m.group(1) + suf + ".tga")
+        if not os.path.exists(p):
+            return None
+        t = open(p, "rb").read()
+        w, h, bpp = struct.unpack_from("<HHB", t, 12)
+        desc = t[17]
+        px = np.frombuffer(t, np.uint8, w * h * (bpp // 8), 18 + t[0]).reshape(h, w, bpp // 8)[:, :, :3][:, :, ::-1]
+        if not desc & 0x20:
+            px = px[::-1]
+        faces.append(px.astype(np.float32))
+    return faces
+
+
+def sample_sky(sky, dirs):
+    """dirs: (..., 3) -> (..., 3) RGB."""
+    v = dirs.reshape(-1, 3)
+    out = np.zeros_like(v)
+    ax = np.argmax(np.abs(v), axis=1)
+    sgn = np.sign(v[np.arange(len(v)), ax])
+    face = ax * 2 + (sgn < 0)
+    for i in range(6):
+        sel = face == i
+        if not sel.any():
+            continue
+        k = ST_TO_VEC[i]
+        jn = [abs(q) for q in k].index(3); js = [abs(q) for q in k].index(1); jt = [abs(q) for q in k].index(2)
+        vv = v[sel]
+        dn = vv[:, jn] * (1 if k[jn] > 0 else -1)
+        s = vv[:, js] * (1 if k[js] > 0 else -1) / dn
+        t = vv[:, jt] * (1 if k[jt] > 0 else -1) / dn
+        img = sky[i]
+        h, w = img.shape[:2]
+        x = np.clip((s + 1) / 2 * w - 0.5, 0, w - 1); y = np.clip((1 - t) / 2 * h - 0.5, 0, h - 1)
+        x0 = np.floor(x).astype(int); y0 = np.floor(y).astype(int)
+        x1 = np.minimum(x0 + 1, w - 1); y1 = np.minimum(y0 + 1, h - 1)
+        fx = (x - x0)[:, None]; fy = (y - y0)[:, None]
+        out[sel] = (img[y0, x0] * (1 - fx) * (1 - fy) + img[y0, x1] * fx * (1 - fy) +
+                    img[y1, x0] * (1 - fx) * fy + img[y1, x1] * fx * fy)
+    return out.reshape(dirs.shape)
+
+
 def render(path, eye, target, out, W=1280, H=720, fov=75):
     faces, texinfo, texs, light = load(path)
+    sky = load_sky(path)
     eye = np.array(eye, float); target = np.array(target, float)
     f = target - eye; f /= np.linalg.norm(f)
     r = np.cross(f, [0, 0, 1]); r /= np.linalg.norm(r)
@@ -144,6 +203,12 @@ def render(path, eye, target, out, W=1280, H=720, fov=75):
             ys, xs, col, zz = ys[keep], xs[keep], col[keep], z[m][keep]
             img[y0 + ys, x0 + xs] = col
             zbuf[y0 + ys, x0 + xs] = zz
+    if sky is not None:
+        ys, xs = np.nonzero(np.isinf(zbuf))
+        if len(ys):
+            dirs = (f[None, :] + r[None, :] * ((xs + 0.5 - W / 2) / fl)[:, None] + u[None, :] * ((H / 2 - ys - 0.5) / fl)[:, None])
+            dirs /= np.linalg.norm(dirs, axis=1, keepdims=True)
+            img[ys, xs] = sample_sky(sky, dirs)
     Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)).save(out)
 
 
@@ -166,6 +231,7 @@ if __name__ == "__main__":
         "gecit_giris": ((1560, 40, 120), (1230, 0, -60)),
         "gecit_tunel": ((1120, 0, -56), (-96, 0, -80)),
         "gecit_cikis": ((-720, 150, 130), (-870, 430, -50)),
+        "rihtim_ufuk": ((-900, -200, 64), (-2400, 500, 40)),      # rıhtımdan göz hizasında denize/köprüye bakış
     }
     which = args or list(views)
     for k in which:
