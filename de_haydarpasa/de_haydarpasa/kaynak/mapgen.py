@@ -4,16 +4,35 @@ Axes: +x = east (toward the tracks / Anatolia), -x = west (sea, Bosphorus),
 +y = north. Ground level z = 0, sea surface z = -32.
 """
 import itertools
-import json
 import math
+import os
+import struct
 import numpy as np
 
-TEXSIZE = json.load(open("/home/claude/hp/texsizes.json"))
+HERE = os.path.dirname(os.path.abspath(__file__))
+WAD_PATH = os.path.join(HERE, "haydarpasa.wad")
+
+
+def wad_sizes(path):
+    """Texture name -> (w, h) from a WAD3 directory."""
+    d = open(path, "rb").read()
+    magic, n, off = struct.unpack_from("<4sii", d, 0)
+    assert magic == b"WAD3", path
+    sizes = {}
+    for i in range(n):
+        fo, _, _, _, _, _, name = struct.unpack_from("<iiiBBH16s", d, off + 32 * i)
+        name = name.split(b"\0")[0].decode()
+        sizes[name] = struct.unpack_from("<II", d, fo + 16)
+    return sizes
+
+
+TEXSIZE = wad_sizes(WAD_PATH)
 TEXSIZE.update({"sky": (16, 16), "aaatrigger": (16, 16), "clip": (16, 16), "null": (16, 16)})
 # yazılı vagon dokuları 512x128 ama hp_carside'ın (128) kaydırmasıyla hizalanır (yazi_yama.py)
 TEXSIZE.update({"hp_carsc_guney": (128, 128), "hp_carsc_kuzey": (128, 128)})
 
-WADS = "/home/claude/hp/haydarpasa.wad;/home/claude/seedee/sdhlt/tools/sdhlt.wad"
+# derleme: sdHLCSG -wadinclude haydarpasa  (sdhlt.wad yalnız sky/aaatrigger araç dokuları için)
+WADS = "haydarpasa.wad;sdhlt.wad"
 
 
 # ---------------------------------------------------------------- brushes
@@ -176,6 +195,39 @@ def wall_y(y0, y1, x0, x1, z0, z1, openings, tex, **kw):
     return out
 
 
+def bounds(b):
+    P = np.array(b.verts)
+    return P.min(axis=0), P.max(axis=0)
+
+
+def carve(brushes, hole):
+    """Subtract the axis-aligned box `hole` = (x0, y0, z0, x1, y1, z1) from a list of box brushes."""
+    hx0, hy0, hz0, hx1, hy1, hz1 = hole
+    out = []
+    for b in brushes:
+        (x0, y0, z0), (x1, y1, z1) = bounds(b)
+        if hx0 >= x1 or hx1 <= x0 or hy0 >= y1 or hy1 <= y0 or hz0 >= z1 or hz1 <= z0:
+            out.append(b)
+            continue
+        mk = lambda *c: box(*c, b.tex, align=b.align, scale=b.scale, fit=b.fit)
+        cx0, cx1 = max(x0, hx0), min(x1, hx1)
+        cy0, cy1 = max(y0, hy0), min(y1, hy1)
+        cz0, cz1 = max(z0, hz0), min(z1, hz1)
+        if x0 < cx0:
+            out.append(mk(x0, y0, z0, cx0, y1, z1))
+        if cx1 < x1:
+            out.append(mk(cx1, y0, z0, x1, y1, z1))
+        if y0 < cy0:
+            out.append(mk(cx0, y0, z0, cx1, cy0, z1))
+        if cy1 < y1:
+            out.append(mk(cx0, cy1, z0, cx1, y1, z1))
+        if z0 < cz0:
+            out.append(mk(cx0, cy0, z0, cx1, cy1, cz0))
+        if cz1 < z1:
+            out.append(mk(cx0, cy0, cz1, cx1, cy1, z1))
+    return out
+
+
 # ---------------------------------------------------------------- entities
 world = []
 ents = []
@@ -208,11 +260,11 @@ W(box(X0 - T, Y0 - T, Z1, X1 + T, Y1 + T, Z1 + T, "sky"),
   box(X0 - T, Y0 - T, Z0, X1 + T, Y0, Z1, "sky"),
   box(X0 - T, Y1, Z0, X1 + T, Y1 + T, Z1, "sky"))
 
-# ---- ground
-W(box(-1024, Y0, Z0, -640, Y1, 0, {"top": "hp_concrete", "side": "hp_rustic"}),   # rıhtım (quay)
-  box(-640, Y0, Z0, 256, Y1, 0, {"top": "hp_cobble", "side": "hp_rustic"}),
-  box(256, Y0, Z0, X1, Y1, 0, {"top": "hp_gravel", "side": "hp_rustic"}),
-  box(X0, Y0, Z0, -1024, Y1, -256, "hp_sand"))                                    # seabed
+# ---- ground (zemin plakaları: yer altı geçidi bunlardan oyulduktan sonra yazılır, bkz. UNDERPASS)
+GROUND = [box(-1024, Y0, Z0, -640, Y1, 0, {"top": "hp_concrete", "side": "hp_rustic"}),   # rıhtım (quay)
+          box(-640, Y0, Z0, 256, Y1, 0, {"top": "hp_cobble", "side": "hp_rustic"}),
+          box(256, Y0, Z0, X1, Y1, 0, {"top": "hp_gravel", "side": "hp_rustic"})]
+W(box(X0, Y0, Z0, -1024, Y1, -256, "hp_sand"))                                    # seabed
 
 # quay edge kerb stones (visual band on top edge of quay)
 W(box(-1024, -1152, 0, -1008, 1152, 4, "hp_cornice"))
@@ -336,13 +388,14 @@ for yc, xs in TRACKS:
 
 PLAT = {"top": "hp_plat", "side": "hp_platedge", "bottom": "hp_plat"}
 PLATFORMS = [(-104, 104, -96), (-440, -232, 288), (232, 440, 288), (-760, -584, 288), (584, 760, 288)]
-for y0, y1, xs in PLATFORMS:
-    W(box(xs, y0, 0, 1408, y1, 16, PLAT, align="world"))
+PLAT_BRUSHES = [box(xs, y0, 0, 1408, y1, 16, PLAT, align="world") for y0, y1, xs in PLATFORMS]
 
 # platform canopies (peron sundurmaları)
 for y0, y1, xs in PLATFORMS:
     yc = (y0 + y1) // 2
     for xp in (384, 640, 896, 1152):
+        if yc == 0 and xp == 1152:
+            xp = 1120          # orta peron: direk merdiven boşluğunun (x 1152..1408) kenarından geri çekildi
         W(box(xp - 8, yc - 8, 16, xp + 8, yc + 8, 224, "hp_steel"))
     W(box(320, y0 - 24, 224, 1216, y1 + 24, 236, {"bottom": "hp_canopy", "top": "hp_roof", "side": "hp_steel"}))
     W(box(320, yc - 4, 236, 1216, yc + 4, 248, "hp_steel"))
@@ -392,7 +445,7 @@ boxcar(832, 800, 1152)
 for yb in range(-1088, 1153, 224):
     W(prism(ngon(-992, yb, 12, 8), 0, 28, "hp_steel"))
 # lamp posts
-for yl in (-896, -384, 384, 896):
+for yl in (-896, -384, 160, 896):      # 384 -> 160: geçit çıkışı yerine
     W(box(-916, yl - 4, 0, -908, yl + 4, 176, "hp_steel"), box(-924, yl - 12, 176, -900, yl + 12, 184, "hp_steel"))
     ent("light", (-912, yl, 164), _light="255 214 160 90")
 
@@ -401,7 +454,7 @@ W(box(-976, -720, 0, -848, -400, 128, {"side": "hp_contblue", "tb": "hp_carroof"
   box(-944, -1120, 0, -880, -1056, 64, "hp_crate", align="local"),
   box(-944, -1120, 64, -880, -1056, 128, "hp_crate", align="local"),
   box(-816, -880, 0, -752, -816, 64, "hp_crate", align="local"),
-  box(-880, 432, 0, -816, 496, 64, "hp_crate", align="local"),
+  box(-816, 1000, 0, -752, 1064, 64, "hp_crate", align="local"),    # (-880,432) -> geçit çıkışının kuzeyine
   box(-976, 560, 0, -848, 880, 128, {"side": "hp_contred", "tb": "hp_carroof"}))
 
 # pier (iskele) with pier house
@@ -462,6 +515,42 @@ W(box(-400, 800, 0, -80, 928, 128, {"side": "hp_contblue", "tb": "hp_carroof"}),
   box(64, 960, 0, 192, 1120, 128, {"side": "hp_contblue", "tb": "hp_carroof"}),
   box(-560, 1040, 0, -496, 1104, 64, "hp_crate", align="local"))
 
+# ================================================================ UNDERPASS (yer altı geçidi)
+# Orta peronun doğu ucundan (x 1152..1408) merdivenle inilir; peronların, avlunun ve bekleme
+# salonunun altından geçip rıhtımda kuzey kulenin yanında (x -928..-800, y 224..480) merdivenle
+# çıkar. Avlu altındaki dirsek uzun bir niş hattını kırar.
+TUN_FLOOR, TUN_CEIL, LIN = -128, -24, 16
+TUN_TEX = {"top": "hp_concrete", "bottom": "hp_concrete", "side": "hp_brick"}
+SEGS = [(-96, -64, 1152, 64),        # peronların altı, doğu-batı (y 0 ekseni)
+        (-224, -64, -96, 224),       # dirsek (avlunun altı)
+        (-928, 96, -224, 224)]       # salon ve rıhtımın altı (y 160 ekseni)
+PIT_E = (1152, -64, 1408, 64)        # doğu girişi: üst basamak peron ucunda, batıya iner
+PIT_W = (-928, 224, -800, 480)       # batı çıkışı: kuzeye çıkar, y=480'de rıhtıma açılır
+interiors = [(x0, y0, TUN_FLOOR, x1, y1, TUN_CEIL) for x0, y0, x1, y1 in SEGS]
+interiors += [(x0, y0, TUN_FLOOR, x1, y1, 0) for x0, y0, x1, y1 in (PIT_E, PIT_W)]
+shell = []
+for x0, y0, z0, x1, y1, z1 in interiors:
+    hole = (x0 - LIN, y0 - LIN, z0 - LIN, x1 + LIN, y1 + LIN, min(z1 + LIN, 0))
+    GROUND = carve(GROUND, hole)
+    shell.append(box(*hole, TUN_TEX))
+for hole in interiors:
+    shell = carve(shell, hole)
+PLAT_BRUSHES = carve(PLAT_BRUSHES, (PIT_E[0], PIT_E[1], -1, PIT_E[2], PIT_E[3], 17))   # peronda merdiven boşluğu
+W(GROUND, PLAT_BRUSHES, shell)
+# basamaklar: 16 yüksek, 32 derin; en altta 32'lik sahanlık
+for k in range(1, 8):
+    W(box(1408 - 32 * k, -64, TUN_FLOOR, 1408 - 32 * (k - 1), 64, -16 * k, "hp_concrete"))      # doğu
+    W(box(-928, 480 - 32 * k, TUN_FLOOR, -800, 480 - 32 * (k - 1), -16 * k, "hp_concrete"))     # batı
+# rıhtım çıkışının çevresinde alçak korkuluk duvarı (üç yan; kuzey ucu açık)
+W(box(-944, 208, 0, -928, 480, 24, "hp_stone"),
+  box(-800, 208, 0, -784, 480, 24, "hp_stone"),
+  box(-944, 208, 0, -784, 224, 24, "hp_stone"))
+# tünel aydınlatması
+for x in (1024, 768, 512, 256, 0):
+    ent("light", (x, 0, TUN_CEIL - 16), _light="255 236 200 90")
+for x, y in ((-160, 160), (-416, 160), (-672, 160), (-896, 160)):
+    ent("light", (x, y, TUN_CEIL - 16), _light="255 236 200 90")
+
 # ================================================================ GAMEPLAY ENTITIES
 # CT spawns: inside the main waiting hall
 for x in (-560, -496):
@@ -509,4 +598,4 @@ def write(path):
 
 
 if __name__ == "__main__":
-    write("/home/claude/hp/de_haydarpasa.map")
+    write(os.path.join(HERE, "de_haydarpasa.map"))

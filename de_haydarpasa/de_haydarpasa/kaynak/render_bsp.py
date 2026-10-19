@@ -1,5 +1,5 @@
 """Tiny software renderer for GoldSrc BSP v30 (textures + lightmaps) for previews."""
-import struct, sys, math
+import os, struct, sys, math
 import numpy as np
 from PIL import Image
 
@@ -148,7 +148,12 @@ def render(path, eye, target, out, W=1280, H=720, fov=75):
 
 
 if __name__ == "__main__":
-    bsp = sys.argv[1]
+    # kullanım: python render_bsp.py harita.bsp [-o cikti_dizini] [gorunum ...]
+    args = sys.argv[1:]
+    bsp = args.pop(0)
+    outdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "onizleme")
+    if args[:1] == ["-o"]:
+        args.pop(0); outdir = args.pop(0)
     views = {
         "sea_view": ((-2300, -900, 420), (-500, 150, 380)),
         "aerial": ((-2400, 1500, 1350), (300, -200, 0)),
@@ -157,12 +162,17 @@ if __name__ == "__main__":
         "b_site": ((-660, -830, 110), (-1250, -1040, 30)),
         "courtyard": ((480, 0, 72), (-256, 0, 200)),
         "plan": ((-352, -1, 12000), (-352, 0, 0)),
+        # yer altı geçidi: doğu girişi (orta peron ucu), tünel içi, rıhtım çıkışı
+        "gecit_giris": ((1560, 40, 120), (1230, 0, -60)),
+        "gecit_tunel": ((1120, 0, -56), (-96, 0, -80)),
+        "gecit_cikis": ((-720, 150, 130), (-870, 430, -50)),
     }
-    which = sys.argv[2:] or list(views)
+    which = args or list(views)
     for k in which:
         e, t = views[k]
+        out = os.path.join(outdir, f"prev_{k}.png")
         if k == "plan":
-            render(bsp, e, t, f"/home/claude/hp/prev_{k}.png", W=1600, H=1200, fov=21)
+            render(bsp, e, t, out, W=1600, H=1200, fov=21)
         else:
-            render(bsp, e, t, f"/home/claude/hp/prev_{k}.png")
+            render(bsp, e, t, out)
         print("rendered", k)
