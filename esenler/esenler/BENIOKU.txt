@@ -1,0 +1,55 @@
+Esenler Otogarı - Counter-Strike 1.6 harita paketi: cs_esenler + de_esenler
+==========================================================================
+
+KURULUM
+  cstrike\ klasörünün içindekileri oyunun cstrike klasörünün üzerine kopyalayın:
+    cstrike\maps\cs_esenler.bsp, de_esenler.bsp  -> ...\Steam\steamapps\common\Half-Life\cstrike\maps\
+    cstrike\maps\*.res                           -> (sunucular için indirme listeleri, isteğe bağlı)
+    cstrike\gfx\env\esenler*.tga (6 dosya)       -> ...\Half-Life\cstrike\gfx\env\         (gökyüzü, ortak)
+    cstrike\sound\esenler\*.wav (13 dosya)       -> ...\Half-Life\cstrike\sound\esenler\   (sesler, ortak)
+  Dokular .bsp içine gömülü, ek .wad gerekmez. Oyunda konsolu açıp:  map cs_esenler  /  map de_esenler
+
+cs_esenler - ORTA BİNA VE METRO (rehine kurtarma)
+  Büyük İstanbul Otogarı'nın orta binası: zemin katta bekleme salonu (koltuklar), PTT, polis,
+  büfe; 1. katta emanet, bilet, bürolar. Salonun ortasından yürüyen merdivenlerle M1 metrosunun
+  bilet holüne (turnikeler, gişe), oradan perona inilir (bekleyen metro treni). Bilet holünün
+  kuzeyinden ikinci bir merdiven avluya çıkar. Çevrede peronlar (12-19), park etmiş otobüsler,
+  yazıhaneler ve sundurmalar.
+  T   : Orta binanın içi (salon + 1. kat). Rehineler: bekleme salonu, PTT, 1. kat büroları (4).
+  CT  : Yarısı güney ana girişinden (dışarıdan), yarısı metro peronundan başlar.
+  Kurtarma bölgeleri: güney giriş koridoru ve metro peronu.
+  Girişler: doğu/batı ana kapılar, güney/kuzey kapılar, 1. kat kırılabilir pencereler (çatı
+  sundurması yok, dışarıdan ateşle kırılır), metrodan yürüyen merdiven, kuzey metro çıkışı.
+  Figürler: yazıhane önünde yolcu çeken yazıhaneciler, bagajı yerleştiren muavinler, çay
+  tepsisiyle ikramcılar, bekleyen yolcular. Bazıları ara ara belirip kaybolur.
+  Sesler: otobüs rölantisi, kalabalık, floresan, metro tüneli; ara sıra anons (ding-dong),
+  çığırtkanlar ("Ankaraa, Ankara!" / "Samsuun!"), bagaj kapağı, hava freni, metronun gelişi.
+
+de_esenler - ALT KAT (bomba imha)
+  Otogarın eski alt katı: kullanılmayan dükkânların labirenti. Üç ana koridor (güney, orta,
+  kuzey) ve üç ara koridor; aralarda kepenkleri indirilmiş dükkânlar, açık olanlar: lokanta
+  (masalar), berber, çay ocağı, emanet, kuaför, büfe, geçit dükkânları (içinden karşı koridora
+  geçilir), boş dükkânlar (yarı inik kepenk, altından geçilir).
+  T   : Yer üstündeki servis avlusu (konteyner, koliler). Rampadan yükleme rıhtımına (kamyon,
+        paletler) ve güney koridora inilir.
+  CT  : Kuzeydeki ana merdiven sahanlığı (bozuk yürüyen merdivenler, üst kapı KAPALI).
+  A   : Doğudaki eski tuvalet (kabinler, pisuarlar, lavabolar, ıslak zemin). C4 tuvalete
+        yerleştirilir. Güney koridordan ve orta koridorun ucundaki dar geçitten girilir.
+  B   : Batıdaki depo (raflar, koliler). Rıhtımdan geniş açıklık, kuzeybatıdan rampa.
+  Figürler: ikramcı, aşçı, depo işçisi, kayıp yolcular, koridor köşesinde yazıhaneci; bazıları
+  ara ara görünür. Sesler: havalandırma, floresan vızıltısı, tuvalette damla, yukarıdan boğuk
+  anons ve çığırtkan, avluda otobüsler.
+  Not: Haritayı oynanabilir boyutta tutmak için otogarın tamamı değil, yalnızca orta bina/
+  avlu (cs) ve alt katın bir bölümü (de) yapıldı; kalan kısımlar kapalı kapı, kepenk ve duvarla
+  sınırlandı. Yenileme öncesi (eski) Esenler esas alındı.
+
+DÜZENLEME (isteğe bağlı)
+  kaynak\cs_esenler.map, de_esenler.map -> J.A.C.K. / Hammer / TrenchBroom (Valve 220);
+                                          esenler.wad + araç dokuları için sdhlt.wad.
+  kaynak\common.py      -> ortak fırça/varlık altyapısı (figürler, floresan, merdiven, rampa).
+  kaynak\mapgen_cs.py, mapgen_de.py -> haritaları üretir.
+  kaynak\textures.py    -> esenler.wad (101 doku: terrazzo, kahverengi fayans, yazıhane cephesi,
+                           kepenkler, otobüs/metro kaplamaları, tuvalet, tabelalar...).
+  kaynak\skygen.py      -> puslu İstanbul göğü; soundgen.py -> sesler; render_bsp.py + plan_etiket.py
+                           -> önizlemeler ve etiketli planlar.
+  Derleme: SDHLT (sdHLCSG -wadinclude esenler, sdHLBSP, sdHLVIS -full, sdHLRAD -extra).
