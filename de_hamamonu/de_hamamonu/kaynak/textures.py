@@ -585,6 +585,57 @@ def bus_sign():
     return a
 
 
+# ---------------------------------------------------------------- sicakcikolata.com
+def logo_rgb(w, h):
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sc_logo.png")
+    return np.asarray(Image.open(p).convert("RGB").resize((w, h), Image.Resampling.LANCZOS)).astype(float)
+
+
+def fit_size(text, font, max_w, size):
+    while size > 8:
+        bb = ImageFont.truetype(FONTS[font], size).getbbox(text)
+        if bb[2] - bb[0] + size // 5 <= max_w:
+            break
+        size -= 1
+    return size
+
+
+def sc_logo():
+    """Asılı dükkân tabelası: SÇ logosu, ince altın çerçeve (128x240)."""
+    a = solid(128, 240, (204, 164, 72))
+    a[4:236, 4:124] = logo_rgb(120, 232)
+    return a
+
+
+def sc_pano():
+    """Reklam panosu 256x128: solda logo, sağda 'sicakcikolata.com', altta çikolata damlaları."""
+    w, h = 256, 128
+    yy, xx = np.mgrid[0:h, 0:w]
+    t = (yy / h)[..., None]
+    a = np.array((150, 82, 20), float) * (1 - t) + np.array((84, 42, 8), float) * t
+    a = a + np.zeros((h, w, 3))
+    a[8:120, 10:78] = logo_rgb(68, 112)
+    size = fit_size("sicakcikolata.com", "bold", 156, 26)
+    layer = text_layer(w, h, "sicakcikolata.com", "bold", size, (250, 232, 190), (40, 20, 8), None, 0)
+    # yazıyı sağ bölüme kaydır: katmanı 86 px sağa ötele (merkez 128 -> 164)
+    layer = np.roll(layer, 36, axis=1)
+    paste_rgba(a, layer, 1.0)
+    for cx, wd, ln in ((100, 7, 22), (124, 5, 14), (150, 8, 30), (180, 6, 18), (206, 7, 26), (232, 5, 12)):   # damlalar
+        a[h - ln:h, cx - wd:cx + wd] = (40, 20, 8)
+        r = np.hypot(xx - cx, yy - (h - ln)) < wd
+        a[r] = (40, 20, 8)
+    rect(a, 0, 0, w, 3, (40, 20, 8)); rect(a, 0, h - 3, w, h, (40, 20, 8))
+    rect(a, 0, 0, 3, h, (40, 20, 8)); rect(a, w - 3, 0, w, h, (40, 20, 8))
+    return a
+
+
+def awning_sc():
+    a = solid(64, 64, (120, 64, 24))
+    yy, xx = np.mgrid[0:64, 0:64]
+    a[(xx // 8) % 2 == 0] = (240, 224, 196)
+    return add_noise(a, 6)
+
+
 TEXTURES = {
     "ho_pl_w": plaster_white, "ho_pl_y": plaster_ochre, "ho_pl_p": plaster_pink, "ho_pl_b": plaster_blue,
     "ho_pl_g": plaster_green, "ho_inner": inner_wall, "ho_stone": rubble_stone, "ho_ashlar": ashlar,
@@ -605,6 +656,10 @@ TEXTURES = {
     "ho_s_hacet": lambda: sign("HACETTEPE ÜNİVERSİTESİ", 512, 64, (200, 190, 170), (40, 50, 80), "bold", 30, (150, 140, 120)),
     "ho_s_kule": lambda: sign("SAAT KULESİ MEYDANI", 256, 32, (60, 60, 70), (240, 240, 240), "bold"),
     "ho_s_hacetyol": lambda: sign("HACETTEPE ÖNÜ", 256, 32, (60, 60, 70), (240, 240, 240), "bold"),
+    # sicakcikolata.com: asılı logo tabelası, reklam panosu, dükkân yazısı, kafe tentesi
+    "ho_sclogo": sc_logo, "ho_scpano": sc_pano,
+    "ho_s_sc": lambda: sign("sicakcikolata.com", 256, 32, (74, 40, 18), (250, 232, 190), "bold", None, (36, 18, 6)),
+    "ho_awning_sc": awning_sc,
 }
 
 

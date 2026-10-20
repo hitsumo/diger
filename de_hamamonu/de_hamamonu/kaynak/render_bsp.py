@@ -239,6 +239,10 @@ if __name__ == "__main__":
         "t_meydan": ((-1380, -1090, 110), (-900, -800, 60)),            # T: aşağı mahalle
         "ct": ((1200, 1300, 200), (700, 700, 150)),                     # CT avlusu
         "guney_sokak": ((-1300, -690, 72), (600, -690, 100)),           # güney sokak
+        "sc_kafe": ((-1100, 60, 72), (-1260, -150, 120)),               # B: sicakcikolata.com kafesi ve panosu
+        "sc_sokak": ((-200, 330, 200), (-330, 440, 300)),               # ana sokak: asılı logo tabelası
+        "sc_dukkan": ((-60, 300, 200), (-70, 448, 270)),                # çikolatacı dükkânı tabelası
+        "sc_durak": ((1264, -380, 200), (1264, -556, 190)),             # A: otobüs durağı panosu
     }
     which = args or list(views)
     for k in which:

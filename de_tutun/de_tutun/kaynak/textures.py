@@ -550,6 +550,44 @@ def trim():
     return add_noise(a, 5)
 
 
+# ---------------------------------------------------------------- sicakcikolata.com
+def logo_rgb(w, h):
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sc_logo.png")
+    return np.asarray(Image.open(p).convert("RGB").resize((w, h), Image.Resampling.LANCZOS)).astype(float)
+
+
+def fit_size(text, font, max_w, size):
+    while size > 8:
+        bb = ImageFont.truetype(FONTS[font], size).getbbox(text)
+        if bb[2] - bb[0] + size // 5 <= max_w:
+            break
+        size -= 1
+    return size
+
+
+def sc_logo():
+    """Duvara yapıştırılmış, biraz yıpranmış SÇ logosu afişi (128x240)."""
+    a = solid(128, 240, (168, 150, 122))              # kâğıt kenarı
+    a[4:236, 4:124] = logo_rgb(120, 232)
+    stains(a, 5, 6, 24, (60, 40, 26), alpha=0.3, sigma=3)
+    cracks(a, 2, (110, 90, 70), length=40)             # çizik / yırtık
+    return add_noise(a, 4)
+
+
+def sc_text():
+    """Eski duvar reklamı: solmuş krem bant üstüne çikolata rengi 'sicakcikolata.com' (512x64)."""
+    w, h = 512, 64
+    a = solid(w, h, (214, 196, 156))
+    add_noise(a, 8)
+    rect(a, 0, 0, w, 3, (120, 90, 60)); rect(a, 0, h - 3, w, h, (120, 90, 60))
+    size = fit_size("sicakcikolata.com", "bold", w - 32, 44)
+    layer = text_layer(w, h, "sicakcikolata.com", "bold", size, (72, 40, 20), (72, 40, 20), None, 0)
+    paste_rgba(a, layer, 0.85)
+    stains(a, 8, 8, 30, (150, 130, 100), alpha=0.45, sigma=4)     # solma
+    stains(a, 3, 6, 16, (90, 60, 40), alpha=0.3, sigma=2)
+    return a
+
+
 TEXTURES = {
     "tf_brick": brick, "tf_brick2": brick_dark, "tf_plaster": plaster,
     "tf_graf1": graf1, "tf_graf2": graf2, "tf_graf3": graf3, "tf_graf4": graf4,
@@ -562,6 +600,7 @@ TEXTURES = {
     "tf_window": broken_window, "tf_sign": sign,
     "tf_signa": lambda: site_sign("A", (230, 60, 40)), "tf_signb": lambda: site_sign("B", (240, 200, 40)),
     "tf_garbage": garbage, "{tf_fence": fence, "{tf_ladder": ladder, "tf_trim": trim,
+    "tf_sclogo": sc_logo, "tf_scyazi": sc_text,                  # sicakcikolata.com afişi ve duvar reklamı
 }
 
 

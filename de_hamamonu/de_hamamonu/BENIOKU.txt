@@ -37,6 +37,10 @@ HARİTA
         sokaktan meydana geçer. Merdivenli sokaktaki ev A'ya çıkar. Karacabey Hamamı
         (kubbeli): güney sokaktan avluya, içinde göbek taşı ve kurnalar. Hacettepe lobisi
         CT avlusuyla A'yı bağlar.
+  sicakcikolata.com: B'deki çay bahçesi sicakcikolata.com kafesidir (kahve-krem şemsiyeler,
+        çitin üstünde iki yüzlü reklam panosu). Ana sokakta SÇ logolu asılı tabela ve
+        "sicakcikolata.com" yazılı çikolatacı dükkânı; A'daki otobüs durağının arka
+        paneli de sicakcikolata.com reklam panosudur. Kaynak: kaynak\sc_logo.png.
   Sesler: Kuşlar, çeşmeler, çay bahçesinde kalabalık uğultusu, Hacettepe tarafında uzak
         trafik, hamamda damlayan su; ara sıra korna, güvercinler ve köpek havlaması.
 

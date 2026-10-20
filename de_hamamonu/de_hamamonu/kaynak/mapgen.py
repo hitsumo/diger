@@ -108,6 +108,8 @@ class Brush:
             su, sv = self.scale
             us, vs = fv @ u, fv @ v
             fit = self.fit
+            if fit and (us.max() - us.min() < 16 or vs.max() - vs.min() < 16):
+                fit = None          # ince kenar yüzleri: sığdırma yok (surface extents sınırı 240 texel)
             if fit and tex not in ("sky", "aaatrigger", "clip", "null"):
                 if fit in ("v", "uv"):
                     sv = (vs.max() - vs.min()) / th
@@ -393,7 +395,7 @@ def roof(x0, y0, x1, y1, z, color):
             hip_roof(x0 - 28, y0 - 28, x1 + 28, y1 + 28, z, z + 80, {"slope": "ho_tile", "side": "ho_tile", "bottom": "ho_eave"})]
 
 
-def facade_house(x0, y0, x1, y1, base, faces, floors=2, color=None, door_face=None, cumbas=(), shop=None, sign=None, buried=()):
+def facade_house(x0, y0, x1, y1, base, faces, floors=2, color=None, door_face=None, cumbas=(), shop=None, sign=None, buried=(), awning=None):
     """Girilmeyen ev: dolu blok + kabartma pencere/kapı + cumba + kiremit çatı.
     faces: pencere konan yüzler. cumbas: (face, center) listesi. shop: (face, center) vitrin."""
     color = color or next_color()
@@ -415,18 +417,19 @@ def facade_house(x0, y0, x1, y1, base, faces, floors=2, color=None, door_face=No
         c, a0, a1 = face_span(f, x0, y0, x1, y1)
         D(relief(f, c, m - 64, m + 64, base + 8, base + 120, "ho_shop", 6))
         # tente
+        aw = awning or ("ho_awning2" if f == "+y" else "ho_awning")
         if f == "-y":
             D(Brush([(m - 80, c, base + 124), (m + 80, c, base + 124), (m - 80, c - 56, base + 100), (m + 80, c - 56, base + 100),
-                     (m - 80, c, base + 128), (m + 80, c, base + 128), (m - 80, c - 56, base + 104), (m + 80, c - 56, base + 104)], "ho_awning"))
+                     (m - 80, c, base + 128), (m + 80, c, base + 128), (m - 80, c - 56, base + 104), (m + 80, c - 56, base + 104)], aw))
         elif f == "+y":
             D(Brush([(m - 80, c, base + 124), (m + 80, c, base + 124), (m - 80, c + 56, base + 100), (m + 80, c + 56, base + 100),
-                     (m - 80, c, base + 128), (m + 80, c, base + 128), (m - 80, c + 56, base + 104), (m + 80, c + 56, base + 104)], "ho_awning2"))
+                     (m - 80, c, base + 128), (m + 80, c, base + 128), (m - 80, c + 56, base + 104), (m + 80, c + 56, base + 104)], aw))
         elif f == "-x":
             D(Brush([(c, m - 80, base + 124), (c, m + 80, base + 124), (c - 56, m - 80, base + 100), (c - 56, m + 80, base + 100),
-                     (c, m - 80, base + 128), (c, m + 80, base + 128), (c - 56, m - 80, base + 104), (c - 56, m + 80, base + 104)], "ho_awning"))
+                     (c, m - 80, base + 128), (c, m + 80, base + 128), (c - 56, m - 80, base + 104), (c - 56, m + 80, base + 104)], aw))
         else:
             D(Brush([(c, m - 80, base + 124), (c, m + 80, base + 124), (c + 56, m - 80, base + 100), (c + 56, m + 80, base + 100),
-                     (c, m - 80, base + 128), (c, m + 80, base + 128), (c + 56, m - 80, base + 104), (c + 56, m + 80, base + 104)], "ho_awning"))
+                     (c, m - 80, base + 128), (c, m + 80, base + 128), (c + 56, m - 80, base + 104), (c + 56, m + 80, base + 104)], aw))
     if sign:
         f, m, tex, sw, sh = sign
         c, a0, a1 = face_span(f, x0, y0, x1, y1)
@@ -573,10 +576,10 @@ def fountain(x, y, base, r=72):
     sound((x, y, base + 60), "hamamonu/cesme.wav", 6, 2)
 
 
-def umbrella(x, y, base):
+def umbrella(x, y, base, tex="ho_awning"):
     group("semsiye")
     D(box(x - 3, y - 3, base, x + 3, y + 3, base + 120, "ho_metal"),
-      pyramid(ngon(x, y, 72, 8), base + 100, (x, y, base + 130), "ho_awning"),
+      pyramid(ngon(x, y, 72, 8), base + 100, (x, y, base + 130), tex),
       box(x - 32, y - 32, base + 44, x + 32, y + 32, base + 48, "ho_wood"), box(x - 2, y - 2, base, x + 2, y + 2, base + 44, "ho_metal"))
     for dx, dy in ((-50, 0), (50, 0), (0, -50), (0, 50)):
         D(box(x + dx - 12, y + dy - 12, base + 26, x + dx + 12, y + dy + 12, base + 30, "ho_wood"),
@@ -674,9 +677,14 @@ for x, y in ((-1350, -300), (-700, 300), (-1350, 300)):
     tree(x, y, 0)
 # çay bahçesi (güneybatı köşe): şemsiyeler, masalar; çit
 for x, y in ((-1300, -200), (-1180, -200), (-1300, -320), (-1180, -320)):
-    umbrella(x, y, 0)
-ent("func_wall", brushes=[box(-1380, -120, 0, -1120, -116, 40, "{ho_fence", align="local"),
+    umbrella(x, y, 0, "ho_awning_sc")
+ent("func_wall", brushes=[box(-1344, -120, 0, -1120, -116, 40, "{ho_fence", align="local"),     # batı ucunda 64'lük giriş
                           box(-1120, -380, 0, -1116, -116, 40, "{ho_fence", align="local")], rendermode=4, renderamt=255)
+# kafe panosu: sicakcikolata.com (çitin üstünde, iki yüzü de görünür)
+group("tabela", shadow=True)
+D(box(-1340, -140, 0, -1332, -132, 104, "ho_metal"), box(-1172, -140, 0, -1164, -132, 104, "ho_metal"),
+  box(-1344, -142, 104, -1160, -130, 112, "ho_metal"),
+  box(-1344, -140, 112, -1160, -132, 204, {"side": "ho_scpano", "tb": "ho_metal"}, align="local", fit="uv"))
 for x, y in ((-760, -300), (-760, 300), (-1340, 60), (-700, 0)):
     lamp_post(x, y, 0)
 bench(-1250, 350, 0); bench(-800, -360, 0)
@@ -762,10 +770,13 @@ NB = 128
 facade_house(-640, 448, -448, 832, NB, ["-y", "+y"], 2, color="ho_pl_b", cumbas=[("-y", -544)], door_face="-y")
 passable_house(-352, 448, -96, 832, NB, [("-y", -224), ("+y", -224)], color="ho_pl_w", windows=["-y", "+y"], two_level=True,
                cumbas=[("-y", -224)], stair_side="+x")
-facade_house(-96, 448, 160, 832, NB, ["-y", "+y"], 2, color="ho_pl_y", cumbas=[("-y", 32), ("+y", 32)], door_face="-y", shop=("-y", -40))
+facade_house(-96, 448, 160, 832, NB, ["-y", "+y"], 2, color="ho_pl_y", cumbas=[("-y", 96), ("+y", 32)], door_face="-y", shop=("-y", -40), awning="ho_awning_sc")
 passable_house(256, 448, 512, 832, NB, [("-y", 384), ("+y", 384)], color="ho_pl_p", windows=["-y", "+y"], two_level=False)
 group('tabela'); D(relief("-y", 448, -600, -344, 132 + NB, 164 + NB, "ho_s_kule", 6))
-group('tabela'); D(relief("-y", 448, 20, 148, 136 + NB, 168 + NB, "ho_s_bakir", 6))
+group('tabela'); D(relief("-y", 448, -168, 24, 140 + NB, 164 + NB, "ho_s_sc", 6))                 # çikolatacı: sicakcikolata.com
+group("tabela", shadow=True)                                                                      # ev 2'nin köşesinde asılı logo tabelası
+D(box(-336, 400, NB + 232, -324, 448, NB + 238, "ho_metal"),
+  box(-334, 405, NB + 150, -326, 448, NB + 230, {"side": "ho_sclogo", "tb": "ho_metal"}, align="local", fit="uv"))
 # ana sokak eşyaları: lambalar, saksılar, kilim asılı duvar
 for x in (-500, -200, 100, 400):
     lamp_post(x, 440, NB)
@@ -814,7 +825,7 @@ for pos in ((960, 760, NB + 220), (960, 920, NB + 220), (880, 840, NB + 220), (1
     light(pos, (235, 240, 255), 180)
 sound((960, 840, NB + 120), "hamamonu/ugultu.wav", 4, 2)
 # A meydanı eşyaları: ağaçlar, banklar, saksılar, anıt kaidesi, otobüs durağı, büfe
-for x, y in ((620, -480), (620, 380), (1300, -480), (1300, 360), (780, 120), (1140, 120)):
+for x, y in ((620, -480), (620, 380), (1300, -420), (1300, 360), (780, 120), (1140, 120)):
     tree(x, y, NB, 210, 100)
 group("anit", shadow=True)
 D(box(912, -48, NB, 1008, 48, NB + 80, "ho_ashlar2"), box(928, -32, NB + 80, 992, 32, NB + 96, "ho_ashlar"),
@@ -823,9 +834,12 @@ planter(540, -260, 700, -140, NB); planter(1220, -260, 1380, -140, NB); planter(
 bench(960, -200, NB); bench(960, 200, NB); bench(760, -120, NB, "y"); bench(1160, -120, NB, "y")
 # otobüs durağı (güneydoğu)
 group("durak", shadow=True)
-D(box(1200, -560, NB, 1360, -552, NB + 128, "ho_glass"), box(1192, -568, NB + 128, 1368, -488, NB + 136, "ho_metal"),
-  box(1200, -568, NB, 1208, -488, NB + 128, "ho_metal"), box(1352, -568, NB, 1360, -488, NB + 128, "ho_metal"),
-  box(1216, -552, NB + 24, 1344, -528, NB + 32, "ho_bench"), relief("+y", -552, 1256, 1304, NB + 60, NB + 108, "ho_bus"))
+D(box(1136, -560, NB, 1392, -552, NB + 128, {"side": "ho_scpano", "tb": "ho_metal"}, align="local", fit="uv"),   # reklam panosu
+  box(1128, -568, NB + 128, 1400, -488, NB + 136, "ho_metal"),
+  box(1136, -568, NB, 1144, -488, NB + 128, "ho_metal"), box(1384, -568, NB, 1392, -488, NB + 128, "ho_metal"),
+  box(1152, -552, NB + 24, 1376, -528, NB + 32, "ho_bench"),
+  box(1240, -496, NB + 136, 1288, -488, NB + 184, {"side": "ho_bus", "tb": "ho_metal"}, align="local", fit="uv"))
+light((1264, -516, NB + 112), (255, 244, 224), 170)                                       # durak çatısının altı: pano aydınlatması
 # büfe
 group("bufe", shadow=True)
 D(box(1150, 200, NB, 1278, 296, NB + 112, {"side": "ho_metal", "tb": "ho_metal"}), relief("-y", 200, 1166, 1262, NB + 20, NB + 100, "ho_shop", 6),
