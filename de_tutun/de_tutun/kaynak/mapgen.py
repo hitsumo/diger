@@ -111,6 +111,8 @@ class Brush:
             su, sv = self.scale
             us, vs = fv @ u, fv @ v
             fit = self.fit
+            if fit and (us.max() - us.min() < 16 or vs.max() - vs.min() < 16):
+                fit = None          # ince kenar yüzleri: sığdırma yok (surface extents sınırı 240 texel)
             if fit and tex not in ("sky", "aaatrigger", "clip", "null"):
                 if fit in ("v", "uv"):
                     sv = (vs.max() - vs.min()) / th
@@ -352,6 +354,7 @@ W(box(-176, -1572, 0, -160, -1532, 240, "tf_steel"), box(160, -1572, 0, 176, -15
   box(-176, -1572, 232, 176, -1532, 240, "tf_steel"),
   box(-128, -1556, 168, 128, -1550, 232, "tf_sign", align="local", fit="uv"))
 graffiti("+y", "tf_graf1", 300, 556, 16, 144, -1536)
+graffiti("+y", "tf_sclogo", 190, 267, 12, 156, -1536)           # kapının yanında sicakcikolata.com afişi
 graffiti("+y", "tf_graf3", -900, -644, 16, 144, -1536)
 graffiti("-x", "tf_graf2", -1100, -844, 16, 144, 1536)
 
@@ -367,6 +370,7 @@ for a, b in E_WIN:                       # üst kat pencereleri (doku) + alt pen
     W(box(-640, a, 240, -636, b, 336, "tf_window", align="local", fit="uv"),
       box(-676, a - 8, 92, -636, b + 8, 96, "tf_trim"))
 W(box(-640, -128, 200, -636, 128, 264, "tf_sign", align="local", fit="uv"))      # kapı üstü tabela
+W(box(-640, -192, 280, -636, 192, 328, "tf_scyazi", align="local", fit="uv"))    # eski duvar reklamı: sicakcikolata.com
 # güney duvarı (T yoluna bakar): kapı + bir pencere ; kuzey duvarı (CT alanına): kapı
 W(wall_y(-704, -672, FX0, FX1, 0, FZ, [(-1000, -872, 0, 160), (-1400, -1272, 96, 224)],
          {"-y": "tf_brick", "+y": "tf_plaster", "side": "tf_brick", "tb": "tf_brick"}))
@@ -513,7 +517,8 @@ depot(704, 192, 1344, 672, (320, 480), [(560, 608)],
       [(400, 464, 64, 112)], (900, 424, 1052, 576),
       [(992, 184, 1072, 200), (768, 664, 832, 680)], tilt=-1)
 graffiti("-x", "tf_graf3", 488, 664, 120, 184, 704)
-graffiti("+y", "tf_graf1", 800, 1056, 16, 144, 192)
+graffiti("-y", "tf_graf1", 800, 1056, 16, 144, 192)            # ara sokağa bakan güney yüz
+graffiti("+y", "tf_sclogo", 980, 1076, 20, 200, 672)           # kuzey yolu: sicakcikolata.com afişi
 crate(940, 460, 0, 96, 64, 48, breakable_=False); crate(956, 460, 48, 64, 64, 48, breakable_=False)
 sacks(740, 220, 900, 320, 44); sacks(1180, 560, 1300, 640, 36); sacks(760, 560, 860, 640, 40)
 crate(1240, 230, 0); crate(1240, 294, 0); crate(1180, 230, 0)
@@ -577,6 +582,7 @@ lamp_post(-300, 1000, (-0.3, 1))
 W(box(-400, -1300, 0, -272, -1172, 48, "tf_wood", align="local"),   # paletler
   box(-400, -1300, 48, -336, -1236, 96, "tf_wood", align="local"),
   box(900, -1400, 0, 1160, -1300, 80, "tf_metal"), box(1160, -1400, 0, 1240, -1300, 120, "tf_panel"))  # hurda kamyon
+W(box(920, -1300, 18, 1140, -1296, 46, "tf_scyazi", align="local", fit="uv"))    # kamyonun yanında solmuş reklam
 crate(-1200, -1200, 0); crate(-1136, -1200, 0)
 barrel(1300, -1000); barrel(1340, -1020); barrel(-700, -900, explosive=True)
 lamp_post(640, -1480, (-0.3, 1))

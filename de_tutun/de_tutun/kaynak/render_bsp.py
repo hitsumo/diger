@@ -232,6 +232,9 @@ if __name__ == "__main__":
         "yuruyus": ((800, 1010, 290), (800, 500, 220)),              # yürüyüş yolundan depo çatısına
         "ct": ((-1250, 1200, 80), (-900, 560, 110)),
         "sokak": ((1440, -700, 72), (1100, 0, 90)),                  # doğu sokağı
+        "sc_fabrika": ((-330, -330, 72), (-640, 0, 270)),              # fabrika girişi üstü: sicakcikolata.com reklamı
+        "sc_kapi": ((330, -1380, 72), (230, -1536, 90)),              # T kapısı yanındaki afiş
+        "sc_depo": ((1060, 1000, 72), (1028, 672, 120)),               # depo 2 kuzey duvarı afişi
     }
     which = args or list(views)
     for k in which:

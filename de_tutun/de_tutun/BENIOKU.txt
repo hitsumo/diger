@@ -37,6 +37,9 @@ HARİTA
         uğultusu bölgeye göre değişir; ara sıra uzaktan gök gürültüsü, metal çarpması ve
         cam kırılması duyulur. Sandıklar ve fıçılar kırılabilir; her tur siper ve
         geçişler biraz farklı olur.
+  sicakcikolata.com: Fabrika girişinin üstünde solmuş bir duvar reklamı, hurda kamyonun
+        yanında da aynı yazı; SÇ logosu afişleri ana kapının yanında (T tarafı) ve
+        2 numaralı deponun kuzey duvarında (CT yolu). Kaynak: kaynak\sc_logo.png.
 
 DÜZENLEME (isteğe bağlı)
   kaynak\de_tutun.map  -> J.A.C.K. / Hammer / TrenchBroom ile açılabilir (Valve 220).
