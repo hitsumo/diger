@@ -1,0 +1,20 @@
+// de_esenler - sunucu indirme listesi
+gfx/env/esenlerbk.tga
+gfx/env/esenlerdn.tga
+gfx/env/esenlerft.tga
+gfx/env/esenlerlf.tga
+gfx/env/esenlerrt.tga
+gfx/env/esenlerup.tga
+sound/esenler/otobus.wav
+sound/esenler/kalabalik.wav
+sound/esenler/floresan.wav
+sound/esenler/metro.wav
+sound/esenler/ruzgar.wav
+sound/esenler/havalandirma.wav
+sound/esenler/damla.wav
+sound/esenler/anons.wav
+sound/esenler/cigirtkan.wav
+sound/esenler/cigirtkan2.wav
+sound/esenler/bagaj.wav
+sound/esenler/fren.wav
+sound/esenler/metro_gelis.wav
