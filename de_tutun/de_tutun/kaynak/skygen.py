@@ -19,7 +19,7 @@ SS = 3
 NAME = "tutun"
 ST_TO_VEC = [(3, -1, 2), (-3, 1, 2), (1, 3, 2), (-1, -3, 2), (-2, -1, 3), (2, -1, -3)]
 SUFFIX = ["rt", "bk", "lf", "ft", "up", "dn"]
-MOON_AZ, MOON_EL = 230.0, 50.0
+MOON_AZ, MOON_EL = 50.0, 50.0       # light_environment yaw 230: ışık güneybatıya gider, ay kuzeydoğuda
 
 
 def smoothstep(a, b, x):

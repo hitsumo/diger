@@ -1,0 +1,52 @@
+de_hamamonu - Counter-Strike 1.6 haritası: Ankara Hamamönü, gündüz
+====================================================================
+
+KURULUM
+  cstrike\ klasörünün içindekileri oyunun cstrike klasörünün üzerine kopyalayın:
+    cstrike\maps\de_hamamonu.bsp              -> ...\Steam\steamapps\common\Half-Life\cstrike\maps\
+    cstrike\maps\de_hamamonu.res              -> (sunucular için indirme listesi, isteğe bağlı)
+    cstrike\gfx\env\hamamonu*.tga (6 dosya)   -> ...\Half-Life\cstrike\gfx\env\         (gökyüzü)
+    cstrike\sound\hamamonu\*.wav (10 dosya)   -> ...\Half-Life\cstrike\sound\hamamonu\  (ortam sesleri)
+  Dokular .bsp içine gömülü, ek .wad gerekmez. Gökyüzü ve sesler kopyalanmazsa harita yine
+  açılır ama gök boş görünür ve sesler duyulmaz.
+  Oyunda konsolu açıp:  map de_hamamonu
+
+HARİTA
+  Tür: Bomba imha (de_), 16 T + 16 CT spawn. İki kot: aşağı mahalle (z=0) ve yukarı
+  mahalle (128 birim yukarıda); aralarında merdivenli sokaklar ve evlerin iç merdivenleri.
+  T   : Aşağı mahalle meydanı (güneybatı; çeşme, ağaçlar). Güney sokak buradan başlar.
+  CT  : Hacettepe'nin arka avlusu (kuzeydoğu). Binanın iki yanından ve lobisinden A'ya.
+  B   : SAAT KULESİ MEYDANI (batı, aşağı kot). Ortada taş saat kulesi ve çevresinde oturma
+        halkası, çeşme, çay bahçesi (şemsiyeler, masalar; pusu için iyi), dükkânlar.
+        Girişler: güneyden T sokağı ve içinden geçilen ev, doğudan Hamam Sokağı, kuzeydoğudan
+        ana sokağın büyük merdiveni, kuzeyden Kule Yokuşu (kuzey sokaktan inen merdiven).
+        Kuzeydeki evler meydana yukarıdan bakar (cumbalar).
+  A   : HACETTEPE ÖNÜ (doğu, yukarı kot). Hacettepe Üniversitesi cephesinin önündeki geniş
+        meydan: anıt, saksılar, banklar, ağaçlar, otobüs durağı, büfe. Açık alan, AWP için
+        uzun görüş; siperler adacık halinde. Güneyinde güney sokağa inen merdiven; A'nın
+        güney kenarından sokağa atlanabilir (tek yön).
+  Ana sokak: B'nin merdivenlerinden A'ya kadar dümdüz, iki yanı cumbalı evler (AWP hattı).
+        Kuzey bloktaki evlerin cumbalarından sokağa hâkim olunur.
+  Ara sokaklar: Hamam Sokağı (B'nin doğusu), merdivenli sokak (avludan ana sokağa çıkar),
+        hamam ile ev arasındaki dar geçit, kuzey bloktaki iki ara sokak, Kule Yokuşu.
+        Dar ve kısa mesafeli; her köşe bir pusu.
+  Evlerin içi: Avludaki dört evden üçü geçilir: avludan girip iç merdivenle çıkıp ana
+        sokağa açılırsınız (alt kot -> üst kot). Cumbalı üst odalardan sokağa ateş edilir.
+        Güney sokaktaki ev (BAKIRCI) avluya geçer; üst katındaki cumba sokağa bakar.
+        Kuzey bloktaki iki ev ana sokakla kuzey sokağı bağlar. B'nin güneyindeki ev güney
+        sokaktan meydana geçer. Merdivenli sokaktaki ev A'ya çıkar. Karacabey Hamamı
+        (kubbeli): güney sokaktan avluya, içinde göbek taşı ve kurnalar. Hacettepe lobisi
+        CT avlusuyla A'yı bağlar.
+  Sesler: Kuşlar, çeşmeler, çay bahçesinde kalabalık uğultusu, Hacettepe tarafında uzak
+        trafik, hamamda damlayan su; ara sıra korna, güvercinler ve köpek havlaması.
+
+DÜZENLEME (isteğe bağlı)
+  kaynak\de_hamamonu.map -> J.A.C.K. / Hammer / TrenchBroom ile açılabilir (Valve 220).
+                            hamamonu.wad'ı editöre ekleyin; araç dokuları için sdhlt.wad.
+  kaynak\mapgen.py       -> haritayı üretir (ev üreteci: geçilen/geçilmeyen, tek/iki kat,
+                            cumba, iç merdiven; hamam; kule; Hacettepe; iki kotlu zemin).
+  kaynak\textures.py     -> hamamonu.wad dokularını üretir (55 doku).
+  kaynak\skygen.py       -> gündüz gökyüzü (Ankara Kalesi, minareler, Atakule silüetleri).
+  kaynak\soundgen.py     -> ortam seslerini üretir.
+  kaynak\render_bsp.py   -> onizleme\ klasörüne önizleme görüntüleri; plan_etiket.py plana etiket yazar.
+  Derleme: SDHLT (sdHLCSG -wadinclude hamamonu, sdHLBSP, sdHLVIS -full, sdHLRAD -extra).
