@@ -1,0 +1,50 @@
+de_tutun - Counter-Strike 1.6 haritası: terk edilmiş tütün fabrikası, gece
+=========================================================================
+
+KURULUM
+  cstrike\ klasörünün içindekileri oyunun cstrike klasörünün üzerine kopyalayın:
+    cstrike\maps\de_tutun.bsp            -> ...\Steam\steamapps\common\Half-Life\cstrike\maps\
+    cstrike\maps\de_tutun.res            -> (sunucular için indirme listesi, isteğe bağlı)
+    cstrike\gfx\env\tutun*.tga (6 dosya) -> ...\Half-Life\cstrike\gfx\env\      (gökyüzü)
+    cstrike\sound\tutun\*.wav (9 dosya)  -> ...\Half-Life\cstrike\sound\tutun\  (ortam sesleri)
+  Dokular .bsp içine gömülü, ek .wad gerekmez. Gökyüzü ve ses dosyaları kopyalanmazsa
+  harita yine açılır ama gök boş görünür ve sesler duyulmaz.
+  Oyunda konsolu açıp:  map de_tutun
+
+HARİTA
+  Tür: Bomba imha (de_), 16 T + 16 CT spawn.
+  T   : Güney ana kapının içi (yükleme yolu, hurda kamyon, paletler).
+  CT  : Kuzeybatıdaki yükleme alanı (fabrikanın kuzey kapısının önü).
+  A   : Doğudaki 1 numaralı depo, "barut deposu". Kapısı sıkışmış: yan yatmış sürgülü
+        kapının yanındaki dar boşluktan geçilir. Duvarlardaki pencere deliklerinden
+        içeri bakıp bekleyebilirsiniz. İçerideki BARUT fıçıları vurulunca patlar.
+  B   : Batıdaki fabrika ana binasının güney salonu. Çatı çökmüş, ay ışığı delikten
+        giriyor, zeminde moloz yığınları. Asma kata merdivenle ya da çökmüş döşeme
+        rampasıyla çıkılır; asma kat bütün salonu görür.
+  Orta: Avlunun ortasında büyük bir fabrika makinesi (kaide, kazan, volan, borular).
+        Basamaklı bloklardan üstüne koşup zıplayarak çıkılır; en üst kat 160 birimde.
+  Arka: Kuzeydoğuda çöp sahası. Bacanın çevresinde sarmal çelik merdiven; tepesinden
+        yürüyüş yolu 2 numaralı deponun çatısına, oradan tahta köprüyle 1 numaralı
+        deponun (A) çatısına geçilir. Çatı deliklerinden sandık kulesine atlayarak
+        depoların içine inilir; A'nın çatısından avluya bir merdiven de vardır.
+  Rotalar: T -> avlu -> A (depo kapısı) ya da B (fabrika büyük kapısı / güney kapısı)
+           T -> doğu sokağı -> çöp sahası -> sarmal -> çatılar (uzun kuşatma)
+           CT -> fabrika kuzey kapısı -> B ; CT -> kuzey yolu -> ara sokak -> A arka kapısı
+           İki depo arasındaki ara sokak avlu ile doğu sokağını bağlar.
+  Hava: Gece. Ay ışığı loş; birkaç sodyum lambası, titreyen ampuller ve bacadaki
+        projektör dışında ışık yok. Gölgeler saklanmak için uygundur.
+  Sesler: Rüzgar, damlayan su, metal gıcırtıları, elektrik vızıltısı, sinekler, makine
+        uğultusu bölgeye göre değişir; ara sıra uzaktan gök gürültüsü, metal çarpması ve
+        cam kırılması duyulur. Sandıklar ve fıçılar kırılabilir; her tur siper ve
+        geçişler biraz farklı olur.
+
+DÜZENLEME (isteğe bağlı)
+  kaynak\de_tutun.map  -> J.A.C.K. / Hammer / TrenchBroom ile açılabilir (Valve 220).
+                          tutun.wad'ı editöre ekleyin; sky/aaatrigger/clip araç dokuları
+                          için sdhlt.wad (ya da zhlt.wad) yüklü olmalı.
+  kaynak\mapgen.py     -> haritayı üretir (doku boyutlarını yanındaki tutun.wad'dan okur).
+  kaynak\textures.py   -> tutun.wad dokularını üretir (grafitiler, tuğla, pas, çöp...).
+  kaynak\skygen.py     -> gece gökyüzünü üretir (cstrike\gfx\env\tutun*.tga).
+  kaynak\soundgen.py   -> ortam seslerini üretir (cstrike\sound\tutun\*.wav).
+  kaynak\render_bsp.py -> onizleme\ klasörüne önizleme görüntüleri üretir.
+  Derleme: SDHLT (sdHLCSG -wadinclude tutun, sdHLBSP, sdHLVIS -full, sdHLRAD -extra).
